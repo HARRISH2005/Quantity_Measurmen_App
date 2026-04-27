@@ -24,8 +24,8 @@ public class Quantity_Measurment_App {
 
     // ---------------- QUANTITY CLASS ----------------
     static class Quantity {
-        private final double value;
-        private final LengthUnit unit;
+        public final double value;
+        public final LengthUnit unit;
 
         public Quantity(double value, LengthUnit unit) {
             if (!Double.isFinite(value)) {
@@ -42,26 +42,36 @@ public class Quantity_Measurment_App {
             return unit.toFeet(value);
         }
 
-        // -------- UC6: ADDITION (Instance Method) --------
+        // -------- UC6 METHOD --------
         public Quantity add(Quantity other) {
             if (other == null) {
-                throw new IllegalArgumentException("Other quantity cannot be null");
+                throw new IllegalArgumentException("Other cannot be null");
             }
 
-            double sumInFeet = this.toFeet() + other.toFeet();
-            double resultValue = unit.fromFeet(sumInFeet);
+            double sumFeet = this.toFeet() + other.toFeet();
+            double result = this.unit.fromFeet(sumFeet);
 
-            return new Quantity(resultValue, this.unit);
+            return new Quantity(result, this.unit);
         }
 
-        // -------- UC6: ADDITION (Static Overload) --------
-        public static Quantity add(Quantity q1, Quantity q2) {
-            return q1.add(q2);
+        // -------- UC7 METHOD (TARGET UNIT) --------
+        public Quantity add(Quantity other, LengthUnit targetUnit) {
+            if (other == null) {
+                throw new IllegalArgumentException("Other cannot be null");
+            }
+            if (targetUnit == null) {
+                throw new IllegalArgumentException("Target unit cannot be null");
+            }
+
+            double sumFeet = this.toFeet() + other.toFeet();
+            double result = targetUnit.fromFeet(sumFeet);
+
+            return new Quantity(result, targetUnit);
         }
 
-        // -------- Optional overload --------
-        public static Quantity add(double v1, LengthUnit u1, double v2, LengthUnit u2) {
-            return new Quantity(v1, u1).add(new Quantity(v2, u2));
+        // Static helper
+        public static Quantity add(Quantity q1, Quantity q2, LengthUnit targetUnit) {
+            return q1.add(q2, targetUnit);
         }
 
         @Override
@@ -74,37 +84,20 @@ public class Quantity_Measurment_App {
         }
 
         @Override
-        public int hashCode() {
-            return Double.hashCode(toFeet());
-        }
-
-        @Override
         public String toString() {
             return "Quantity(" + value + ", " + unit + ")";
         }
     }
 
-    // ---------------- MAIN (Demo) ----------------
+    // ---------------- MAIN METHOD ----------------
     public static void main(String[] args) {
 
-        System.out.println(Quantity.add(
-                new Quantity(1.0, LengthUnit.FEET),
-                new Quantity(2.0, LengthUnit.FEET)));
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCH);
 
-        System.out.println(Quantity.add(
-                new Quantity(1.0, LengthUnit.FEET),
-                new Quantity(12.0, LengthUnit.INCH)));
-
-        System.out.println(Quantity.add(
-                new Quantity(12.0, LengthUnit.INCH),
-                new Quantity(1.0, LengthUnit.FEET)));
-
-        System.out.println(Quantity.add(
-                new Quantity(1.0, LengthUnit.YARD),
-                new Quantity(3.0, LengthUnit.FEET)));
-
-        System.out.println(Quantity.add(
-                new Quantity(2.54, LengthUnit.CENTIMETER),
-                new Quantity(1.0, LengthUnit.INCH)));
+        System.out.println(q1.add(q2, LengthUnit.FEET));      // 2.0 FEET
+        System.out.println(q1.add(q2, LengthUnit.INCH));      // 24.0 INCH
+        System.out.println(q1.add(q2, LengthUnit.YARD));      // ~0.667 YARD
+        System.out.println(q1.add(q2, LengthUnit.CENTIMETER));// ~60.96 CM
     }
 }
