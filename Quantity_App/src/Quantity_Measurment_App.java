@@ -42,10 +42,26 @@ public class Quantity_Measurment_App {
             return unit.toFeet(value);
         }
 
-        // Instance conversion → returns new Quantity
-        public Quantity convertTo(LengthUnit targetUnit) {
-            double converted = convert(this.value, this.unit, targetUnit);
-            return new Quantity(converted, targetUnit);
+        // -------- UC6: ADDITION (Instance Method) --------
+        public Quantity add(Quantity other) {
+            if (other == null) {
+                throw new IllegalArgumentException("Other quantity cannot be null");
+            }
+
+            double sumInFeet = this.toFeet() + other.toFeet();
+            double resultValue = unit.fromFeet(sumInFeet);
+
+            return new Quantity(resultValue, this.unit);
+        }
+
+        // -------- UC6: ADDITION (Static Overload) --------
+        public static Quantity add(Quantity q1, Quantity q2) {
+            return q1.add(q2);
+        }
+
+        // -------- Optional overload --------
+        public static Quantity add(double v1, LengthUnit u1, double v2, LengthUnit u2) {
+            return new Quantity(v1, u1).add(new Quantity(v2, u2));
         }
 
         @Override
@@ -68,60 +84,27 @@ public class Quantity_Measurment_App {
         }
     }
 
-    // ---------------- STATIC API ----------------
-    public static double convert(double value, LengthUnit source, LengthUnit target) {
-
-        // Validation
-        if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException("Invalid numeric value");
-        }
-        if (source == null || target == null) {
-            throw new IllegalArgumentException("Units cannot be null");
-        }
-
-        // Same unit shortcut
-        if (source == target) {
-            return value;
-        }
-
-        // Normalize to base (feet)
-        double valueInFeet = source.toFeet(value);
-
-        // Convert to target
-        return target.fromFeet(valueInFeet);
-    }
-
-    // ---------------- DEMO METHODS (Overloading) ----------------
-
-    // Method 1: raw values
-    public static void demonstrateLengthConversion(double value, LengthUnit from, LengthUnit to) {
-        double result = convert(value, from, to);
-        System.out.println("convert(" + value + ", " + from + ", " + to + ") → " + result);
-    }
-
-    // Method 2: using Quantity object
-    public static void demonstrateLengthConversion(Quantity quantity, LengthUnit to) {
-        Quantity result = quantity.convertTo(to);
-        System.out.println(quantity + " → " + result);
-    }
-
-    public static void demonstrateLengthEquality(Quantity q1, Quantity q2) {
-        System.out.println(q1 + " == " + q2 + " → " + q1.equals(q2));
-    }
-
-    // ---------------- MAIN ----------------
+    // ---------------- MAIN (Demo) ----------------
     public static void main(String[] args) {
 
-        demonstrateLengthConversion(1.0, LengthUnit.FEET, LengthUnit.INCH);
-        demonstrateLengthConversion(3.0, LengthUnit.YARD, LengthUnit.FEET);
-        demonstrateLengthConversion(36.0, LengthUnit.INCH, LengthUnit.YARD);
-        demonstrateLengthConversion(1.0, LengthUnit.CENTIMETER, LengthUnit.INCH);
-
-        demonstrateLengthConversion(new Quantity(3.0, LengthUnit.YARD), LengthUnit.INCH);
-
-        demonstrateLengthEquality(
+        System.out.println(Quantity.add(
                 new Quantity(1.0, LengthUnit.FEET),
-                new Quantity(12.0, LengthUnit.INCH)
-        );
+                new Quantity(2.0, LengthUnit.FEET)));
+
+        System.out.println(Quantity.add(
+                new Quantity(1.0, LengthUnit.FEET),
+                new Quantity(12.0, LengthUnit.INCH)));
+
+        System.out.println(Quantity.add(
+                new Quantity(12.0, LengthUnit.INCH),
+                new Quantity(1.0, LengthUnit.FEET)));
+
+        System.out.println(Quantity.add(
+                new Quantity(1.0, LengthUnit.YARD),
+                new Quantity(3.0, LengthUnit.FEET)));
+
+        System.out.println(Quantity.add(
+                new Quantity(2.54, LengthUnit.CENTIMETER),
+                new Quantity(1.0, LengthUnit.INCH)));
     }
 }
